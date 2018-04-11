@@ -15,8 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
-package org.ballerinalang.nativeimpl.sql.endpoint;
+package org.ballerinalang.h2.nativeimpl.endpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -24,30 +23,32 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.sql.Constants;
 import org.ballerinalang.nativeimpl.sql.SQLDatasourceUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Returns the SQL Client connector.
+ * Returns the H2 Client connector.
  *
  * @since 0.970
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "sql",
-        functionName = "createSQLClient",
-        args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfig")},
+        orgName = "ballerina", packageName = "h2",
+        functionName = "createClient",
+        args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
         isPublic = true
 )
-public class CreateSQLClient extends BlockingNativeCallableUnit {
+public class CreateClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         BStruct configBStruct = (BStruct) context.getRefArgument(0);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
 
-        BStruct sqlClient = SQLDatasourceUtils.createSQLDBClient(context, clientEndpointConfig);
+        BStruct sqlClient = SQLDatasourceUtils
+                .createMultiModeDBClient(context, Constants.DBTypes.H2, clientEndpointConfig);
         context.setReturnValues(sqlClient);
     }
 }
